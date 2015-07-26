@@ -1,0 +1,15 @@
+{
+    "config": [{
+        "tag": "iframe",
+        "validators": [{
+            "name": "exists",
+            "attr": "src"
+        }, {
+            "name": "scIFast"
+        }],
+        "extractors": [{
+            "name": "sc",
+            "attr": "src"
+        }]
+    }]
+}
