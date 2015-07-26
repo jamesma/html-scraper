@@ -25,7 +25,7 @@ func Soundcloud() {
 
 	items, err := scraper.ScrapHTML(s, f)
 	if err != nil {
-		fmt.Println("error in scraper.ScrapHTMLn", err)
+		fmt.Println("error in scraper.ScrapHTML", err)
 		return
 	}
 
