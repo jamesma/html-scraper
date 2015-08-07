@@ -11,7 +11,6 @@ import (
 var (
 	targets = []string{
 		"hackernews",
-		"soundcloud",
 		// "chamberorganizer", TODO
 	}
 
@@ -37,8 +36,6 @@ func scrapeTarget(target *string) {
 	switch *target {
 	case "hackernews":
 		scrap.HackerNews()
-	case "soundcloud":
-		scrap.Soundcloud()
 	// case "chamberorganizer": TODO
 	// 	scrap.ChamberOrganizer()
 	default:
