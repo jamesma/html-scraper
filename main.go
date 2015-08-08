@@ -11,11 +11,14 @@ import (
 var (
 	targets = []string{
 		"hackernews",
-		// "chamberorganizer", TODO
+		"chamberorganizer",
 	}
 
 	listTargets = flag.Bool("list", false, "list all targets available")
 	target      = flag.String("target", "hackernews", "the target to scrap")
+	lowerID     = flag.Int("lowerID", 0, "the lower ID (inclusive)")
+	upperID     = flag.Int("upperID", 0, "the upper ID (exclusive)")
+	output      = flag.String("output", "output.csv", "the output file to write to")
 )
 
 func customUsageMessage() func() {
@@ -36,8 +39,8 @@ func scrapeTarget(target *string) {
 	switch *target {
 	case "hackernews":
 		scrap.HackerNews()
-	// case "chamberorganizer": TODO
-	// 	scrap.ChamberOrganizer()
+	case "chamberorganizer":
+		scrap.ChamberOrganizer(*lowerID, *upperID, *output)
 	default:
 		fmt.Println("unsupported target:", *target)
 	}
