@@ -106,8 +106,9 @@ func extractEventDetails(root *html.Node) []*html.Node {
 	}
 }
 
-func eventDetailsToStrArr(eventDetails []*html.Node) []string {
+func eventDetailsToStrArr(eventDetails []*html.Node, eventID int) []string {
 	return []string{
+		strconv.Itoa(eventID),
 		scrape.Text(eventDetails[0]),
 		scrape.Text(eventDetails[1]),
 		scrape.Text(eventDetails[2]),
@@ -120,22 +121,22 @@ func eventDetailsToStrArr(eventDetails []*html.Node) []string {
 	}
 }
 
-func writeCSVRecords(records [][]string, fileName string) {
-	csvFile, err := os.Create(fileName)
-	if err != nil {
-		panic(err)
-	}
-	defer csvFile.Close()
-
-	writer := csv.NewWriter(csvFile)
-	for i := 0; i < len(records); i++ {
-		record := records[i]
-		if record != nil {
-			writer.Write(records[i])
-		}
-	}
-	writer.Flush()
-}
+// func writeCSVRecords(records [][]string, fileName string) {
+// 	csvFile, err := os.Create(fileName)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	defer csvFile.Close()
+//
+// 	writer := csv.NewWriter(csvFile)
+// 	for i := 0; i < len(records); i++ {
+// 		record := records[i]
+// 		if record != nil {
+// 			writer.Write(records[i])
+// 		}
+// 	}
+// 	writer.Flush()
+// }
 
 // Scrap a single event for the specified eventID.
 func scrapEvent(eventID int) []string {
@@ -158,29 +159,41 @@ func scrapEvent(eventID int) []string {
 	}
 
 	fmt.Println(" - done")
-	return eventDetailsToStrArr(eventDetails)
+	return eventDetailsToStrArr(eventDetails, eventID)
 }
 
 // Scrap events for the specified lowerEventID (inclusive) to
-// upperEventID (exclusive).
-func scrapEvents(lowerEventID int, upperEventID int) [][]string {
+// upperEventID (exclusive). Writes scraped events to the specified fileName as CSV.
+func scrapEvents(lowerEventID int, upperEventID int, fileName string) {
 	delta := upperEventID - lowerEventID
 	if delta < 0 {
 		panic("lowerEventID (" + string(lowerEventID) +
 			") is less than upperEventID (" + string(upperEventID) + ")")
 	}
 
-	ret := make([][]string, delta)
-	for i := 0; i < delta; i++ {
-		ret[i] = scrapEvent(lowerEventID + i)
+	csvFile, err := os.Create(fileName)
+	if err != nil {
+		panic(err)
 	}
-	return ret
+	defer csvFile.Close()
+	writer := csv.NewWriter(csvFile)
+
+	writtenEvents := 0
+	for i := 0; i < delta; i++ {
+		scrapedEvent := scrapEvent(lowerEventID + i)
+		if scrapedEvent != nil {
+			writer.Write(scrapedEvent)
+			writtenEvents++
+		}
+	}
+	writer.Flush()
+
+	fmt.Println("number of scraped events written: ", writtenEvents)
 }
 
 // ChamberOrganizer scraps ChamberOrganizer. Scrap events for the specified
 // lowerEventID (inclusive) to upperEventID (exclusive). Outputs to the
 // specified file after scraping completes.
 func ChamberOrganizer(lowerEventID int, upperEventID int, output string) {
-	eventRecords := scrapEvents(lowerEventID, upperEventID)
-	writeCSVRecords(eventRecords, output)
+	scrapEvents(lowerEventID, upperEventID, output)
 }
